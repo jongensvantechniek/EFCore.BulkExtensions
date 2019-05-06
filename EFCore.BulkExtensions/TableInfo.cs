@@ -464,11 +464,15 @@ namespace EFCore.BulkExtensions
         {
             if (BulkConfig.PreserveInsertOrder) // Updates PK in entityList
             {
+                var propertyNames = PropertyColumnNamesDict.Keys.Where(e=>!PrimaryKeys.Contains(e)).ToList();
+                var localEntities = entities.OrderByProperties(propertyNames);
+                var localEntitiesWithOutputIdentity = entitiesWithOutputIdentity.OrderByProperties(propertyNames);
+                    
                 var accessor = TypeAccessor.Create(typeof(T), true);
-                for (int i = 0; i < NumberOfEntities; i++)
-                    accessor[entities[i], IdentityColumnName] = accessor[entitiesWithOutputIdentity[i], IdentityColumnName];
+                for (var i = 0; i < NumberOfEntities; i++)
+                    accessor[localEntities[i], IdentityColumnName] = accessor[localEntitiesWithOutputIdentity[i], IdentityColumnName];
             }
-            else // Clears entityList and then refills it with loaded entites from Db
+            else // Clears entityList and then refills it with loaded entities from Db
             {
                 entities.Clear();
                 ((List<T>)entities).AddRange(entitiesWithOutputIdentity);
