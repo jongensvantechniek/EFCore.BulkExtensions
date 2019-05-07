@@ -82,16 +82,17 @@ namespace EFCore.BulkExtensions
 
         // Async methods
 
-        public static Task BulkInsertAsync<T>(this DbContext context, IList<T> entities, BulkConfig bulkConfig = null, Action<decimal> progress = null) where T : class
+        public static async Task BulkInsertAsync<T>(this DbContext context, IList<T> entities, BulkConfig bulkConfig = null, Action<decimal> progress = null) where T : class
         {
-            return DbContextBulkTransaction.ExecuteAsync(context, entities, OperationType.Insert, bulkConfig, progress);
+            await DbContextBulkTransaction.ExecuteAsync(context, entities, OperationType.Insert, bulkConfig, progress).ConfigureAwait(false);
         }
 
-        public static Task BulkInsertAsync<T>(this DbContext context, IList<T> entities, Action<BulkConfig> bulkAction, Action<decimal> progress = null) where T : class
+        public static async Task BulkInsertAsync<T>(this DbContext context, IList<T> entities, Action<BulkConfig> bulkAction, Action<decimal> progress = null) where T : class
         {
             BulkConfig bulkConfig = new BulkConfig();
             bulkAction?.Invoke(bulkConfig);
-            return DbContextBulkTransaction.ExecuteAsync(context, entities, OperationType.Insert, bulkConfig, progress);
+            await DbContextBulkTransaction.ExecuteAsync(context, entities, OperationType.Insert, bulkConfig, progress).ConfigureAwait(false);
+            return;
         }
 
         public static Task BulkInsertOrUpdateAsync<T>(this DbContext context, IList<T> entities, BulkConfig bulkConfig = null, Action<decimal> progress = null) where T : class

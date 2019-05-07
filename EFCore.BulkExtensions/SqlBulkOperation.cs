@@ -283,7 +283,7 @@ namespace EFCore.BulkExtensions
 
             try
             {
-                await InsertAsync(context, entities, tableInfo, progress);
+                await InsertAsync(context, entities, tableInfo, progress).ConfigureAwait(false);
 
                 tableInfo.PropertyColumnNamesDict = previousPropertyColumnNamesDict;
 

@@ -467,6 +467,7 @@ namespace EFCore.BulkExtensions
                 var propertyNames = PropertyColumnNamesDict.Keys.Where(e=>!PrimaryKeys.Contains(e)).ToList();
                 var localEntities = entities.OrderByProperties(propertyNames);
                 var localEntitiesWithOutputIdentity = entitiesWithOutputIdentity.OrderByProperties(propertyNames);
+                
                     
                 var accessor = TypeAccessor.Create(typeof(T), true);
                 for (var i = 0; i < NumberOfEntities; i++)
