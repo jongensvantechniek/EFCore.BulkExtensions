@@ -18,10 +18,7 @@ namespace EFCore.BulkExtensions
         public static IList<T> OrderByProperties<T>(this IEnumerable<T> enumerable,
             IEnumerable<string> propertyNames)
         {
-            if (enumerable.Count() <= 1 || !propertyNames.Any())
-            {
-                return enumerable.ToList();
-            }
+            if (enumerable.Count() <= 1 || !propertyNames.Any()) return enumerable.ToList();
 
             var ordered = enumerable.OrderBy(s => typeof(T).GetProperty(propertyNames.Head()).GetValue(s));
             return propertyNames.Count() == 1 ? ordered.ToList() : ordered.ThenByProperties(propertyNames.Tail());
@@ -30,10 +27,7 @@ namespace EFCore.BulkExtensions
         public static IList<T> ThenByProperties<T>(this IOrderedEnumerable<T> enumerable,
             IEnumerable<string> propertyNames)
         {
-            if (enumerable.Count() <= 1 || !propertyNames.Any())
-            {
-                return enumerable.ToList();
-            }
+            if (enumerable.Count() <= 1 || !propertyNames.Any()) return enumerable.ToList();
 
             var ordered = enumerable.ThenBy(s => typeof(T).GetProperty(propertyNames.Head()).GetValue(s));
             return propertyNames.Count() == 1 ? ordered.ToList() : ordered.ThenByProperties(propertyNames.Tail());

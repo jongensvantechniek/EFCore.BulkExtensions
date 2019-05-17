@@ -9,20 +9,15 @@ namespace EFCore.BulkExtensions
         public static DbConnection GetUnderlyingConnection(this DbContext context, BulkConfig config)
         {
             var connection = context.Database.GetDbConnection();
-            if (config?.UnderlyingConnection != null)
-            {
-                connection = config.UnderlyingConnection(connection);
-            }
+            if (config?.UnderlyingConnection != null) connection = config.UnderlyingConnection(connection);
             return connection;
         }
 
-        public static DbTransaction GetUnderlyingTransaction(this IDbContextTransaction ctxTransaction, BulkConfig config)
+        public static DbTransaction GetUnderlyingTransaction(this IDbContextTransaction ctxTransaction,
+            BulkConfig config)
         {
             var dbTransaction = ctxTransaction.GetDbTransaction();
-            if (config?.UnderlyingTransaction != null)
-            {
-                dbTransaction = config.UnderlyingTransaction(dbTransaction);
-            }
+            if (config?.UnderlyingTransaction != null) dbTransaction = config.UnderlyingTransaction(dbTransaction);
             return dbTransaction;
         }
     }
