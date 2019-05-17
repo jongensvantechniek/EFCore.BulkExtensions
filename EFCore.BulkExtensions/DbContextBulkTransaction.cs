@@ -21,6 +21,7 @@ namespace EFCore.BulkExtensions
                 SqlBulkOperation.Merge(context, entities, tableInfo, operationType, progress);
         }
 
+<<<<<<< HEAD
         public static async Task ExecuteAsync<T>(DbContext context, IList<T> entities, OperationType operationType,
             BulkConfig bulkConfig, Action<decimal> progress) where T : class
         {
@@ -34,6 +35,28 @@ namespace EFCore.BulkExtensions
             else
                 await SqlBulkOperation.MergeAsync(context, entities, tableInfo, operationType, progress)
                     .ConfigureAwait(false);
+=======
+        public static async Task ExecuteAsync<T>(DbContext context, IList<T> entities, OperationType operationType, BulkConfig bulkConfig, Action<decimal> progress) where T : class
+        {
+            if (entities.Count == 0)
+            {
+                return;
+            }
+            TableInfo tableInfo = TableInfo.CreateInstance(context, entities, operationType, bulkConfig);
+
+            if (operationType == OperationType.Insert && !tableInfo.BulkConfig.SetOutputIdentity)
+            {
+                await SqlBulkOperation.InsertAsync(context, entities, tableInfo, progress).ConfigureAwait(false);
+            }
+            else if (operationType == OperationType.Read)
+            {
+                await SqlBulkOperation.ReadAsync(context, entities, tableInfo, progress).ConfigureAwait(false);
+            }
+            else
+            {
+                await SqlBulkOperation.MergeAsync(context, entities, tableInfo, operationType, progress).ConfigureAwait(false);
+            }
+>>>>>>> 472d02928c6723c98ffbb3c628474d77210055f9
         }
     }
 }
