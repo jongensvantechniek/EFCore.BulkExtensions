@@ -25,6 +25,7 @@ namespace EFCore.BulkExtensions
         public List<string> PrimaryKeys { get; set; }
 
         public IReadOnlyList<IProperty> PrimaryKeyProperties { get; set; }
+        public List<string> AutoUpdatedPrimaryKeys { get; set; }
         public bool HasSinglePrimaryKey { get; set; }
         public bool UpdateByPropertiesAreNullable { get; set; }
 
@@ -92,7 +93,7 @@ namespace EFCore.BulkExtensions
         {
             if (BulkConfig.PreserveInsertOrder) // Updates PK in entityList
             {
-                var propertyNames = PropertyColumnNamesDict.Keys.ToList();
+                var propertyNames = PropertyColumnNamesDict.Keys.Where(e=>!AutoUpdatedPrimaryKeys.Contains(e)).ToList();
                 var localEntities = entities.OrderByProperties(propertyNames);
                 var localEntitiesWithOutputIdentity = entitiesWithOutputIdentity.OrderByProperties(propertyNames);
 
@@ -145,6 +146,8 @@ namespace EFCore.BulkExtensions
             HasSinglePrimaryKey = primaryKeys.Count == 1;
             PrimaryKeys = AreSpecifiedUpdateByProperties ? BulkConfig.UpdateByProperties : primaryKeys;
             PrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
+            AutoUpdatedPrimaryKeys = PrimaryKeyProperties.Where(e => e.ValueGenerated != ValueGenerated.Never)
+                .Select(e => e.Name).ToList();
 
             var allProperties = entityType.GetProperties().AsEnumerable();
 
