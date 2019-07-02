@@ -333,3 +333,5 @@ ASALocalRun/
 .mfractor/
 /Core/Core.Azure/local.settings.json
 *.sonarqube/
+
+**/publish_output/
