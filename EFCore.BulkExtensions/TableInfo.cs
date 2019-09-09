@@ -453,11 +453,15 @@ namespace EFCore.BulkExtensions
             var selectByPropertyNames = PropertyColumnNamesDict.Keys.Where(a => PrimaryKeys.Contains(a)).ToList();
 
             var accessor = TypeAccessor.Create(typeof(T), true);
-            var existingEntitiesDict = new Dictionary<string, T>();
+            var existingEntitiesDict = new Dictionary<string, IList<T>>();
             foreach (var existingEntity in existingEntities)
             {
                 var uniqueProperyValues = GetUniquePropertyValues(existingEntity, selectByPropertyNames, accessor);
-                existingEntitiesDict.Add(uniqueProperyValues, existingEntity);
+                if (!existingEntitiesDict.ContainsKey(uniqueProperyValues))
+                {
+                    existingEntitiesDict[uniqueProperyValues] = new List<T>();
+                }
+                existingEntitiesDict[uniqueProperyValues].Add(existingEntity);
             }
 
             for (var i = 0; i < NumberOfEntities; i++)
@@ -466,12 +470,23 @@ namespace EFCore.BulkExtensions
                 var uniqueProperyValues = GetUniquePropertyValues(entity, selectByPropertyNames, accessor);
                 if (existingEntitiesDict.ContainsKey(uniqueProperyValues))
                 {
-                    var existingEntity = existingEntitiesDict[uniqueProperyValues];
-
-                    foreach (var propertyName in propertyNames)
-                        accessor[entities[i], propertyName] = accessor[existingEntity, propertyName];
+                    var existingEntitiesLocal = existingEntitiesDict[uniqueProperyValues];
+                    
+                    CopyEntity(entity, existingEntitiesLocal[0], propertyNames, accessor);
+                    for (var j = 1; j < existingEntitiesLocal.Count; j++)
+                    {
+                        var newEntity = Activator.CreateInstance<T>();
+                        CopyEntity(newEntity, existingEntitiesLocal[j], propertyNames, accessor);
+                        entities.Add(newEntity);
+                    }
                 }
             }
+        }
+
+        private void CopyEntity<T>(T entity, T existingEntity, IList<string> propertyNames, TypeAccessor accessor)
+        {
+            foreach (var propertyName in propertyNames)
+                accessor[entity, propertyName] = accessor[existingEntity, propertyName];
         }
 
         #endregion
