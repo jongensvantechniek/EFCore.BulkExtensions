@@ -464,9 +464,10 @@ namespace EFCore.BulkExtensions
                 existingEntitiesDict[uniqueProperyValues].Add(existingEntity);
             }
 
+            var toBeRemoved = new List<T>();
             for (var i = 0; i < NumberOfEntities; i++)
             {
-                var entity = entities[i];
+                var entity = entities[NumberOfEntities - 1 - i];
                 var uniqueProperyValues = GetUniquePropertyValues(entity, selectByPropertyNames, accessor);
                 if (existingEntitiesDict.ContainsKey(uniqueProperyValues))
                 {
@@ -480,7 +481,12 @@ namespace EFCore.BulkExtensions
                         entities.Add(newEntity);
                     }
                 }
+                else
+                {
+                    toBeRemoved.Add(entity);
+                }
             }
+            toBeRemoved.ForEach(entity => { entities.Remove(entity); });
         }
 
         private void CopyEntity<T>(T entity, T existingEntity, IList<string> propertyNames, TypeAccessor accessor)
